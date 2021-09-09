@@ -7,10 +7,17 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'error_page.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final Space space;
 
   DetailPage(this.space);
+
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  bool isClicked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +35,32 @@ class DetailPage extends StatelessWidget {
       }
     }
 
+    Future showConfirmation() async {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi'),
+            content: const Text(
+                'Apakah kamu ingin menghubungi pemilik penginapan ?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Hubungi');
+                  launchUrl('tel:${widget.space.phone}');
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: whiteColor,
       body: SafeArea(
@@ -35,7 +68,7 @@ class DetailPage extends StatelessWidget {
         child: Stack(
           children: [
             Image.network(
-              space.imageUrl,
+              widget.space.imageUrl,
               width: MediaQuery.of(context).size.width,
               height: 350,
               fit: BoxFit.cover,
@@ -65,7 +98,7 @@ class DetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  space.name,
+                                  widget.space.name,
                                   style: blackTextStyle.copyWith(
                                     fontSize: 22,
                                   ),
@@ -73,7 +106,7 @@ class DetailPage extends StatelessWidget {
                                 SizedBox(height: 2),
                                 Text.rich(
                                   TextSpan(
-                                    text: '\$${space.price}',
+                                    text: '\$${widget.space.price}',
                                     style: purpleTextStyle.copyWith(
                                       fontSize: 16,
                                     ),
@@ -93,7 +126,8 @@ class DetailPage extends StatelessWidget {
                                 (index) {
                                   return Container(
                                     margin: EdgeInsets.only(left: 2),
-                                    child: RatingItem(index, space.rating),
+                                    child:
+                                        RatingItem(index, widget.space.rating),
                                   );
                                 },
                               ).toList(),
@@ -121,17 +155,17 @@ class DetailPage extends StatelessWidget {
                             FacilityItem(
                               'Kitchen',
                               'assets/images/icon_kitchen.png',
-                              space.numberOfKitchens,
+                              widget.space.numberOfKitchens,
                             ),
                             FacilityItem(
                               'Bedroom',
                               'assets/images/icon_bed.png',
-                              space.numberOfBedrooms,
+                              widget.space.numberOfBedrooms,
                             ),
                             FacilityItem(
                               'Big Lemari',
                               'assets/images/icon_cupboard.png',
-                              space.numberOfCupboards,
+                              widget.space.numberOfCupboards,
                             )
                           ],
                         ),
@@ -152,7 +186,7 @@ class DetailPage extends StatelessWidget {
                         height: 88,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          children: space.photos.map((item) {
+                          children: widget.space.photos.map((item) {
                             return Container(
                               margin: EdgeInsets.only(left: 24),
                               child: ClipRRect(
@@ -186,13 +220,13 @@ class DetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${space.address}\n${space.city}',
+                              '${widget.space.address}\n${widget.space.city}',
                               style: greyTextStyle,
                             ),
                             InkWell(
                               onTap: () {
                                 launchUrl(
-                                  space.mapUrl,
+                                  widget.space.mapUrl,
                                 );
                                 // launchUrl('qwertty');
                               },
@@ -218,7 +252,7 @@ class DetailPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(17),
                           ),
                           onPressed: () {
-                            launchUrl('tel:${space.phone}');
+                            showConfirmation();
                           },
                           child: Text(
                             'Book Now',
@@ -249,10 +283,19 @@ class DetailPage extends StatelessWidget {
                       height: 40,
                     ),
                   ),
-                  Image.asset(
-                    'assets/images/btn_wishlist.png',
-                    width: 40,
-                    height: 40,
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isClicked = !isClicked;
+                      });
+                    },
+                    child: Image.asset(
+                      isClicked
+                          ? 'assets/images/btn_wishlist_filled.png'
+                          : 'assets/images/btn_wishlist.png',
+                      width: 40,
+                      height: 40,
+                    ),
                   )
                 ],
               ),
