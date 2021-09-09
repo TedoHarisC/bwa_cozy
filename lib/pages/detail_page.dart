@@ -1,11 +1,17 @@
+import 'package:bwa_cozy/models/space.dart';
 import 'package:bwa_cozy/theme.dart';
 import 'package:bwa_cozy/widgets/facility_item.dart';
+import 'package:bwa_cozy/widgets/rating_item.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'error_page.dart';
 
 class DetailPage extends StatelessWidget {
+  final Space space;
+
+  DetailPage(this.space);
+
   @override
   Widget build(BuildContext context) {
     launchUrl(String url) async {
@@ -28,8 +34,8 @@ class DetailPage extends StatelessWidget {
         bottom: false,
         child: Stack(
           children: [
-            Image.asset(
-              'assets/images/space1.png',
+            Image.network(
+              space.imageUrl,
               width: MediaQuery.of(context).size.width,
               height: 350,
               fit: BoxFit.cover,
@@ -59,7 +65,7 @@ class DetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Kuretakeso Hott',
+                                  space.name,
                                   style: blackTextStyle.copyWith(
                                     fontSize: 22,
                                   ),
@@ -67,7 +73,7 @@ class DetailPage extends StatelessWidget {
                                 SizedBox(height: 2),
                                 Text.rich(
                                   TextSpan(
-                                    text: '\$52',
+                                    text: '\$${space.price}',
                                     style: purpleTextStyle.copyWith(
                                       fontSize: 16,
                                     ),
@@ -83,40 +89,14 @@ class DetailPage extends StatelessWidget {
                               ],
                             ),
                             Row(
-                              children: [
-                                SizedBox(height: 2),
-                                Image.asset(
-                                  'assets/images/stars.png',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                SizedBox(height: 2),
-                                Image.asset(
-                                  'assets/images/stars.png',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                SizedBox(height: 2),
-                                Image.asset(
-                                  'assets/images/stars.png',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                SizedBox(height: 2),
-                                Image.asset(
-                                  'assets/images/stars.png',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                SizedBox(height: 2),
-                                Image.asset(
-                                  'assets/images/stars.png',
-                                  width: 20,
-                                  height: 20,
-                                  color: greyColor,
-                                ),
-                                SizedBox(height: 2),
-                              ],
+                              children: [1, 2, 3, 4, 5].map(
+                                (index) {
+                                  return Container(
+                                    margin: EdgeInsets.only(left: 2),
+                                    child: RatingItem(index, space.rating),
+                                  );
+                                },
+                              ).toList(),
                             )
                           ],
                         ),
@@ -141,17 +121,17 @@ class DetailPage extends StatelessWidget {
                             FacilityItem(
                               'Kitchen',
                               'assets/images/icon_kitchen.png',
-                              2,
+                              space.numberOfKitchens,
                             ),
                             FacilityItem(
                               'Bedroom',
                               'assets/images/icon_bed.png',
-                              3,
+                              space.numberOfBedrooms,
                             ),
                             FacilityItem(
                               'Big Lemari',
                               'assets/images/icon_cupboard.png',
-                              2,
+                              space.numberOfCupboards,
                             )
                           ],
                         ),
@@ -172,30 +152,20 @@ class DetailPage extends StatelessWidget {
                         height: 88,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          children: [
-                            SizedBox(width: 24),
-                            Image.asset(
-                              'assets/images/photo1.png',
-                              width: 110,
-                              height: 88,
-                              fit: BoxFit.cover,
-                            ),
-                            SizedBox(width: 18),
-                            Image.asset(
-                              'assets/images/photo2.png',
-                              width: 110,
-                              height: 88,
-                              fit: BoxFit.cover,
-                            ),
-                            SizedBox(width: 18),
-                            Image.asset(
-                              'assets/images/photo3.png',
-                              width: 110,
-                              height: 88,
-                              fit: BoxFit.cover,
-                            ),
-                            SizedBox(width: 24),
-                          ],
+                          children: space.photos.map((item) {
+                            return Container(
+                              margin: EdgeInsets.only(left: 24),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  item,
+                                  width: 110,
+                                  height: 88,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
                       SizedBox(height: 30),
@@ -216,13 +186,13 @@ class DetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Jln. Kapan Sukses No. 20\nPalembang',
+                              '${space.address}\n${space.city}',
                               style: greyTextStyle,
                             ),
                             InkWell(
                               onTap: () {
                                 launchUrl(
-                                  'https://goo.gl/maps/5yZx2yjWB1yR6AeH8',
+                                  space.mapUrl,
                                 );
                                 // launchUrl('qwertty');
                               },
@@ -248,7 +218,7 @@ class DetailPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(17),
                           ),
                           onPressed: () {
-                            launchUrl('tel:+6285727350081');
+                            launchUrl('tel:${space.phone}');
                           },
                           child: Text(
                             'Book Now',

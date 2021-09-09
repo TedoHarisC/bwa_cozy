@@ -1,18 +1,20 @@
 import 'package:bwa_cozy/models/city.dart';
 import 'package:bwa_cozy/models/space.dart';
 import 'package:bwa_cozy/models/tips.dart';
+import 'package:bwa_cozy/providers/space_provider.dart';
 import 'package:bwa_cozy/theme.dart';
 import 'package:bwa_cozy/widgets/bottom_navbar_item.dart';
 import 'package:bwa_cozy/widgets/city_card.dart';
 import 'package:bwa_cozy/widgets/space_card.dart';
 import 'package:bwa_cozy/widgets/tips_card.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+    var spaceProvider = Provider.of<SpaceProvider>(context);
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -101,45 +103,31 @@ class HomePage extends StatelessWidget {
             SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.only(left: 24.0),
-              child: Column(
-                children: [
-                  SpaceCard(
-                    Space(
-                      1,
-                      'Kuretakeso Hott',
-                      'assets/images/space1.png',
-                      52,
-                      'Badung',
-                      'Germany',
-                      4,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  SpaceCard(
-                    Space(
-                      2,
-                      'Roemah Nenek',
-                      'assets/images/space2.png',
-                      11,
-                      'Seattle',
-                      'Bogor',
-                      5,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  SpaceCard(
-                    Space(
-                      3,
-                      'Darrling How',
-                      'assets/images/space3.png',
-                      20,
-                      'Jakarta',
-                      'Indonesia',
-                      3,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                ],
+              child: FutureBuilder(
+                future: spaceProvider.getRecomenddedSpace(),
+                builder: (context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    List<Space> data = snapshot.data;
+
+                    int index = 0;
+
+                    return Column(
+                      children: data.map((item) {
+                        index++;
+                        return Container(
+                          margin: EdgeInsets.only(
+                            top: index == 1 ? 0 : 30,
+                          ),
+                          child: SpaceCard(item),
+                        );
+                      }).toList(),
+                    );
+                  }
+
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
               ),
             ),
             SizedBox(height: 30),
